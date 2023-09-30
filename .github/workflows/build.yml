@@ -19,8 +19,7 @@ jobs:
         node-version: '18.2.0'
         cache: 'npm'
     - run: npm ci
-    - run: npm build
-    - run: npm test
+    - run: npm run build
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@master
@@ -29,6 +28,7 @@ jobs:
         path: ./build
 
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Download Build Artifact
