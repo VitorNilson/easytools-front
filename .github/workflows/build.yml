@@ -23,7 +23,7 @@ jobs:
     - run: yarn test
 
     - name: Upload Build Artifact
-    - uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@master
       with:
         name: build-files
         path: ./build
@@ -45,7 +45,7 @@ jobs:
           aws-region: sa-east-1
 
       - name: Upload to S3
-      - run: aws s3 cp ./build/ s3://${{ secrets.AWS_BUCKET_NAME }}
+        run: aws s3 cp ./build/ s3://${{ secrets.AWS_BUCKET_NAME }}
         
 
       
