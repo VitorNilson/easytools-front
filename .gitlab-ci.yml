@@ -1,0 +1,55 @@
+image: docker:20
+
+stages:          
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: ubuntu
+  before_script:
+    - apt update
+    - apt install openssh-client -y
+    - eval $(ssh-agent -s)
+    - echo "$SSH_KEY_PROD" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  script:
+    - > 
+      ssh -o StrictHostKeyChecking=no $PROD_CONNECTION_STRING
+      "echo "$DEPLOY_TOKEN_PROD" | docker login -u deploy_prd --password-stdin https://registry.gitlab.com;
+      cd /home/easytools/frontend;
+      git checkout master;
+      git fetch;
+      git reset --hard origin/master;
+      docker build --no-cache -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA} . ;
+      docker push ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}";
+  only:
+      - master
+
+
+deploy:
+  stage: deploy
+  image: ubuntu
+  before_script:
+    - apt update
+    - apt install openssh-client -y
+    - eval $(ssh-agent -s)
+    - echo "$SSH_KEY_PROD" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+  only:
+      - master
+  when: manual
+  script:
+    - >
+      ssh -o StrictHostKeyChecking=no $PROD_CONNECTION_STRING
+      "kubectl -n easytools create secret docker-registry gitlab-registry --docker-server=https://registry.gitlab.com --docker-username=deploy_prd --docker-password="$DEPLOY_TOKEN_PROD" --docker-email="$GITLAB_USER_EMAIL" -o yaml --dry-run=client | kubectl apply -f -"
+      
+    - >
+      ssh -o StrictHostKeyChecking=no $PROD_CONNECTION_STRING
+      "kubectl -n easytools patch serviceaccount default -p '{\"imagePullSecrets\": [{\"name\": \"gitlab-registry\"}]}'"
+      
+    - >
+      ssh -o StrictHostKeyChecking=no $PROD_CONNECTION_STRING
+      "kubectl -n easytools set image deployment/frontend frontend=${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}"

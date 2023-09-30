@@ -1,0 +1,12 @@
+{
+    "tools": [
+        {"id":1,"description":"Copy Paste Online", "link":"/copy-paste/README   ", "image": null, "disabled": false},
+        {"id":2,"description":"Transfer a File", "link":null, "image": null, "disabled": true},
+        {"id":3,"description":"Fake e-mail", "link":null, "image": null, "disabled": true},
+        {"id":4,"description":"Json Server Online", "link":null, "image": null, "disabled": true},
+        {"id":5,"description":"Bcrypt checker", "link":null, "image": null, "disabled": true},
+        {"id":6,"description":"Base 64 encoder / decoder", "link":"/base64", "image": null, "disabled": false},
+        {"id":7,"description":"Planning Poker", "link":null, "image": null, "disabled": true},
+        {"id":8,"description":"Password Generador", "link":null, "image": null, "disabled": true}
+    ]
+}
